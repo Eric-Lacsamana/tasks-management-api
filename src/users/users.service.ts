@@ -13,6 +13,10 @@ export class UsersService {
     private readonly usersRepository: Repository<User>,
   ) {}
 
+  async getUserProfile(userId: number) {
+    return await this.usersRepository.findOne({ where: { id: userId } });
+  }
+
   async create({
     username,
     email,

@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, } from 'typeorm';
 import { Task } from '../tasks/task.entity';
 
 @Entity()
@@ -20,4 +20,7 @@ export class User {
 
   @OneToMany(() => Task, (task) => task.user) // One user can have many tasks
   tasks: Task[];
+
+  @Column({ unique: true, nullable: true })
+  sub?: number;
 }

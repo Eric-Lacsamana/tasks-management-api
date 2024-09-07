@@ -71,7 +71,8 @@ export class TasksService {
     user: User,
   ): Promise<Task> {
     const task = await this.findOne(id);
-    if (task.user.id !== user.id) {
+
+    if (task.user.id !== user.sub) {
       throw new ForbiddenException(
         'You do not have permission to update this task',
       );

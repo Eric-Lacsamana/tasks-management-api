@@ -54,7 +54,7 @@ export class TasksController {
     @Req() req,
   ) {
     const user = req.user;
-
+    console.log('testingan', req.user);
     return this.tasksService.update(id, updateTaskDto, user);
   }
 
