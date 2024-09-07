@@ -1,4 +1,11 @@
-import { IsString, IsNotEmpty, IsBoolean } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsBoolean,
+  ValidateNested,
+  IsOptional,
+} from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateTaskDto {
   @IsString()
@@ -9,6 +16,17 @@ export class CreateTaskDto {
   @IsNotEmpty()
   readonly description: string;
 
+  @IsOptional()
   @IsBoolean()
-  readonly isCompleted: boolean;
+  readonly isCompleted?: boolean;
+
+  @ValidateNested()
+  @Type(() => UserDto)
+  readonly user: UserDto; // Nested user data
+}
+
+export class UserDto {
+  @IsString()
+  @IsNotEmpty()
+  readonly username: string;
 }

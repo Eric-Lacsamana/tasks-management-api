@@ -1,44 +1,62 @@
-import { Controller, Post, Body, Request } from '@nestjs/common';
-import { AuthService } from './auth.service';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpException,
+  HttpStatus,
+  Logger,
+  Post,
+} from '@nestjs/common';
+import { AuthService } from 'src/auth/auth.service';
+import { RegisterDto } from './dto/register.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  private readonly logger = new Logger(AuthService.name);
 
+  constructor(private readonly authService: AuthService) {}
+
+  @HttpCode(HttpStatus.OK)
+  @Post('register')
+  async register(
+    @Body()
+    body: RegisterDto,
+  ) {
+    this.logger.log('Registering user', 'AuthService');
+    try {
+      return await this.authService.register({
+        email: body.email,
+        username: body.username,
+        password: body.password,
+        name: body.name,
+      });
+    } catch (error) {
+      this.logger.error('Registration failed', error.stack, 'AuthService');
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @HttpCode(HttpStatus.OK)
   @Post('login')
-  async login(@Body() body: { username: string, password: string }) {
-    const user = await this.authService.validateUser(body.username, body.password);
+  async login(@Body() body: { username: string; password: string }) {
+    const user = await this.authService.validateUser(
+      body.username,
+      body.password,
+    );
+
     if (!user) {
-      // Handle unauthorized access
+      return { message: 'Invalid credentials' };
     }
     return this.authService.login(user);
   }
+
+  // @Post('forgot-password')
+  // async forgotPassword(@Body() body: { username: string }) {
+  //   return this.authService.forgotPassword(body.username);
+  // }
+
+  // @Post('reset-password')
+  // async resetPassword(@Body() body: { token: string; newPassword: string }) {
+  //   return this.authService.resetPassword(body.token, body.newPassword);
+  // }
 }
-
-
-
-// import { Controller, Post, Body, UseGuards, UnauthorizedException } from '@nestjs/common';
-// import { AuthService } from './auth.service';
-// import { AuthGuard } from './auth.guard';
-
-// @Controller('auth')
-// export class AuthController {
-//   constructor(private readonly authService: AuthService) {}
-
-//   @Post('register')
-//   async register(@Body() body: { email: string, username: string; password: string }) {
-//     return this.authService.register(body.email, body.username, body.password);
-//   }
-
-//   @Post('login')
-//   @UseGuards(AuthGuard)  // Apply the guard to this route
-//   async login(@Body('password') password: string, @Body('hashedPassword') hashedPassword: string): Promise<string> {
-//     const isMatch = await this.authService.validateUser(password, hashedPassword);
-//     if (isMatch) {
-//       return 'Login successful';
-//     } else {
-//       throw new UnauthorizedException('Invalid credentials');  // Throw unauthorized exception if credentials are invalid
-//     }
-//   }
-// }
-

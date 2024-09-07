@@ -7,16 +7,41 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Task } from './task.entity';
 import { User } from '../users/user.entity';
+import { CreateTaskDto } from './dto/create-task.dto';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class TasksService {
   constructor(
     @InjectRepository(Task)
     private tasksRepository: Repository<Task>,
+    private readonly userService: UsersService,
   ) {}
 
-  async create(title: string, description: string, user: User): Promise<Task> {
-    const task = this.tasksRepository.create({ title, description, user });
+  async create({ title, description, user }: CreateTaskDto): Promise<Task> {
+    let userEntity = null;
+
+    if (user) {
+      // Log the username being searched
+      console.log('Looking up user with username:', user.username);
+
+      // Fetch the user
+      userEntity = await this.userService.findOneByUsername(user.username);
+      console.log('testing ngaa', userEntity);
+      if (!userEntity) {
+        console.error(`User with username ${user.username} not found`); // Log if user not found
+        throw new NotFoundException(
+          `User with username ${user.username} not found`,
+        );
+      }
+    }
+
+    const task = this.tasksRepository.create({
+      title,
+      description,
+      user: userEntity,
+    });
+
     return this.tasksRepository.save(task);
   }
 

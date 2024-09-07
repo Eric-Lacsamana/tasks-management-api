@@ -10,27 +10,32 @@ import {
   Delete,
   Patch,
 } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/auth/auth-guard';
+import { AuthGuard } from 'src/auth/auth.guard';
 import { TasksService } from './tasks.service';
 import { UpdateTaskDto } from './dto/update-task.dto';
-
+import { UserDto } from 'src/users/dto/user.dto';
 
 @Controller('tasks')
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
+  @UseGuards(AuthGuard)
   @Post()
-  @UseGuards(JwtAuthGuard)
   async create(
     @Body() body: { title: string; description: string },
     @Req() req,
   ) {
-    const user = req.user;
-    return this.tasksService.create(body.title, body.description, user);
+    const user: UserDto = req.user;
+
+    return this.tasksService.create({
+      title: body.title,
+      description: body.description,
+      user,
+    });
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard)
   async findAll(@Req() req) {
     const user = req.user;
     return this.tasksService.findAll(user.id);
@@ -42,25 +47,25 @@ export class TasksController {
   }
 
   @Put(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard)
   async update(
     @Param('id') id: number,
     @Body() updateTaskDto: UpdateTaskDto,
     @Req() req,
   ) {
     const user = req.user;
-    // Optionally, you can add validation here to ensure the user is authorized to update this task
-    return this.tasksService.update(id, updateTaskDto);
+
+    return this.tasksService.update(id, updateTaskDto, user);
   }
 
   @Patch(':id/complete')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard)
   async markAsCompleted(@Param('id') id: number) {
     return this.tasksService.markAsCompleted(id);
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard)
   async remove(@Param('id') id: number) {
     return this.tasksService.remove(id);
   }
