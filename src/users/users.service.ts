@@ -1,62 +1,76 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
 
 @Injectable()
 export class UsersService {
-  private readonly saltRounds = 10;
-  private readonly users = [];
-  
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
   ) {}
 
-
-  async createUser(email: string, username: string, password: string): Promise<User> {
-    const newUser = this.usersRepository.create({ username, password });
-    return this.usersRepository.save(newUser);
+  async findAll(): Promise<User[]> {
+    return this.usersRepository.find();
   }
 
-  async findOneByUsername(username: string): Promise<User | undefined> {
-      return this.usersRepository.findOne({ where: { username } });
-    }
-
-    async create(email: string, username: string, password: string): Promise<User> {
-
-      // Validate existing user
-      const existingUser = await this.usersRepository.findOne({
-        where: {
-          username: username,
-          email: email
-        }});
-
-      if (existingUser) {
-        throw new ConflictException('username or email already exists');
-      }
-
-      const hashedPassword = await bcrypt.hash(password, this.saltRounds);
-      const user = this.usersRepository.create({ email, username, password: hashedPassword });
-      return this.usersRepository.save(user);
-    }
-
-    async findOne(username: string): Promise<User | undefined> {
-      return this.usersRepository.findOneBy({ username });
-    }
-
-    async updatePassword(username: string, password: string) {
-      const user = this.users.find(u => u.username === username);
-      if (user) {
-        user.password = password;
-        return user;
-      }
-      throw new Error('User not found');
-    }
+  async findOne(id: number): Promise<User> {
+    return this.usersRepository.findOneBy({ id });
+  }
 }
 
+// import {
+//   Injectable,
+//   // ConflictException,
+//   // NotFoundException,
+// } from '@nestjs/common';
+// import { InjectRepository } from '@nestjs/typeorm';
+// import { Repository } from 'typeorm';
+// import { User } from './user.entity';
+// // import * as bcrypt from 'bcrypt';
+// // import { RegisterDto } from './dto/register.dto';
+// // import { UserResponseDto } from './dto/user-response.dto';
+// // import { CreateUserDto } from './interfaces/create-user.interface';
+// // import { UserResponseDto } from './interfaces/user-response.interface';
+// // import { LoginResponseDto } from './interfaces/login-response.interface';
 
+// @Injectable()
+// export class UsersService {
+//   private readonly jwtSecret = 'your-jwt-secret'; // Store this securely
 
+//   constructor(
+//     @InjectRepository(User)
+//     private readonly userRepository: Repository<User>,
+//   ) {}
 
+//   // async register(dto: RegisterDto): Promise<UserResponseDto> {
+//   //   const { email, password, username, name } = dto;
 
+//   //   const hashedPassword = await bcrypt.hash(password, 10);
+//   //   const user = this.userRepository.create({
+//   //     email,
+//   //     password: hashedPassword,
+//   //     username,
+//   //     name,
+//   //   });
+
+//   //   const savedUser = await this.userRepository.save(user);
+//   //   return this.toUserResponse(savedUser);
+//   // }
+
+//   // async login(email: string, password: string): Promise<LoginResponseDto> {
+//   //   const user = await this.userRepository.findOne({ where: { email } });
+//   //   if (!user || !(await bcrypt.compare(password, user.password))) {
+//   //     throw new NotFoundException('Invalid credentials');
+//   //   }
+
+//   //   const payload = { email: user.email, sub: user.id };
+//   //   const token = jwt.sign(payload, this.jwtSecret, { expiresIn: '1h' });
+//   //   return { token };
+//   // }
+
+//   // private toUserResponse(user: User): UserResponseDto {
+//   //   const { id, email, username, name } = user;
+//   //   return { id, email, username, name };
+//   // }
+// }

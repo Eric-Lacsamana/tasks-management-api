@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { TasksModule } from './tasks/tasks.module';
@@ -20,43 +22,7 @@ import { TasksModule } from './tasks/tasks.module';
     UsersModule,
     TasksModule,
   ],
-  controllers: [],
-  providers: [],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
-
-
-// import { Module } from '@nestjs/common';
-// import { AppController } from './app.controller';
-// import { AppService } from './app.service';
-// import { TypeOrmModule } from '@nestjs/typeorm';
-// import { UsersModule } from './users/users.module';
-// import { AuthModule } from './auth/auth.module';
-// import { TasksModule } from './tasks/tasks.module';
-
-// // import { User } from './user/user.entity';
-// // import { Task } from './tasks/task.entity';
-
-
-// @Module({
-//   imports: [
-//     TypeOrmModule.forRoot({
-//       type: 'postgres',
-//       host: 'localhost',
-//       port: 5432,
-//       username: 'postgres',
-//       password: 'password',
-//       database: 'task_management',
-//       // entities: [User, Task],  // selected entities to synchronize with schema
-//       autoLoadEntities: true,
-//       synchronize: true, // Automatically synchronize schema
-//     }),
-//     UsersModule,
-//     AuthModule,
-//     TasksModule,
-//     UsersModule,
-//   ],
-//   controllers: [AppController],
-//   providers: [AppService],
-// })
-// export class AppModule {}

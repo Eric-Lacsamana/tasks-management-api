@@ -12,10 +12,9 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-
   @Column()
   password: string;
 
-  @OneToMany(() => Task, task => task.user) // One user can have many tasks
+  @OneToMany(() => Task, (task) => task.user) // One user can have many tasks
   tasks: Task[];
 }

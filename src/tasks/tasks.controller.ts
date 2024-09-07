@@ -1,45 +1,67 @@
-import { Controller, Get, Post, Body, Param, Delete, UseGuards, Request, Patch } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Param,
+  UseGuards,
+  Req,
+  Put,
+  Delete,
+  Patch,
+} from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/auth-guard';
-import { Task } from './task.entity';
 import { TasksService } from './tasks.service';
-import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 
+
 @Controller('tasks')
-@UseGuards(JwtAuthGuard) // Only authenticated users can access these routes
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
   @Post()
-  async create(@Body() createTaskDto: CreateTaskDto, @Request() req): Promise<Task> {
-    const user = req.user; // This should be the logged-in user
-    const task = new Task();
-    Object.assign(task, createTaskDto);
-    return this.tasksService.create(task, user);
+  @UseGuards(JwtAuthGuard)
+  async create(
+    @Body() body: { title: string; description: string },
+    @Req() req,
+  ) {
+    const user = req.user;
+    return this.tasksService.create(body.title, body.description, user);
   }
 
   @Get()
-  async findAll(@Request() req): Promise<Task[]> {
-    const user = req.user; // This should be the logged-in user
-    return this.tasksService.findAll(user);
+  @UseGuards(JwtAuthGuard)
+  async findAll(@Req() req) {
+    const user = req.user;
+    return this.tasksService.findAll(user.id);
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: number, @Request() req): Promise<Task> {
-    const user = req.user; // This should be the logged-in user
-    return this.tasksService.findOne(id, user);
+  async findOne(@Param('id') id: number) {
+    return this.tasksService.findOne(id);
   }
 
-  @Patch(':id')
-  async update(@Param('id') id: number, @Body() updateTaskDto: UpdateTaskDto, @Request() req): Promise<Task> {
-    const user = req.user; // This should be the logged-in user
-    return this.tasksService.update(id, updateTaskDto, user);
+  @Put(':id')
+  @UseGuards(JwtAuthGuard)
+  async update(
+    @Param('id') id: number,
+    @Body() updateTaskDto: UpdateTaskDto,
+    @Req() req,
+  ) {
+    const user = req.user;
+    // Optionally, you can add validation here to ensure the user is authorized to update this task
+    return this.tasksService.update(id, updateTaskDto);
   }
 
+  @Patch(':id/complete')
+  @UseGuards(JwtAuthGuard)
+  async markAsCompleted(@Param('id') id: number) {
+    return this.tasksService.markAsCompleted(id);
+  }
 
   @Delete(':id')
-  async remove(@Param('id') id: number, @Request() req): Promise<void> {
-    const user = req.user; // This should be the logged-in user
-    return this.tasksService.remove(id, user);
+  @UseGuards(JwtAuthGuard)
+  async remove(@Param('id') id: number) {
+    return this.tasksService.remove(id);
   }
 }

@@ -1,18 +1,38 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { TasksController } from './tasks.controller';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Param,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
+import { TasksService } from './tasks.service';
+import { JwtAuthGuard } from 'src/auth/auth-guard';
 
-describe('TasksController', () => {
-  let controller: TasksController;
+@Controller('tasks')
+export class TasksController {
+  constructor(private readonly tasksService: TasksService) {}
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [TasksController],
-    }).compile();
+  @Post()
+  @UseGuards(JwtAuthGuard)
+  async create(
+    @Body() body: { title: string; description: string },
+    @Req() req,
+  ) {
+    const user = req.user;
+    return this.tasksService.create(body.title, body.description, user);
+  }
 
-    controller = module.get<TasksController>(TasksController);
-  });
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  async findAll(@Req() req) {
+    const user = req.user;
+    return this.tasksService.findAll(user.id);
+  }
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
-  });
-});
+  @Get(':id')
+  async findOne(@Param('id') id: number) {
+    return this.tasksService.findOne(id);
+  }
+}

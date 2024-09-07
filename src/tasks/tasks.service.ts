@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Task } from './task.entity';
@@ -11,35 +15,63 @@ export class TasksService {
     private tasksRepository: Repository<Task>,
   ) {}
 
-  async findAll(user: User): Promise<Task[]> {
-    return this.tasksRepository.find({ where: { user: user } });
-  }
-
-  async findOne(id: number, user: User): Promise<Task> {
-    return this.tasksRepository.findOne({
-      where: { id: id, user: user },
-    });
-  }
-
-  async create(task: Task, user: User): Promise<Task> {
-    task.user = user;
+  async create(title: string, description: string, user: User): Promise<Task> {
+    const task = this.tasksRepository.create({ title, description, user });
     return this.tasksRepository.save(task);
   }
 
-  async update(id: number, updateData: Partial<Task>, user: User): Promise<Task> {
-    const task = await this.findOne(id, user);
+  async findAll(userId?: number): Promise<Task[]> {
+    if (userId) {
+      return this.tasksRepository.find({
+        where: { user: { id: userId } },
+      });
+    }
+    return this.tasksRepository.find();
+  }
+
+  async findOne(id: number): Promise<Task> {
+    const task = await this.tasksRepository.findOne({
+      where: { id },
+      relations: ['user'],
+    });
+    if (!task) {
+      throw new NotFoundException(`Task with ID ${id} not found`);
+    }
+    return task;
+  }
+
+  async update(
+    id: number,
+    updateData: Partial<Task>,
+    user: User,
+  ): Promise<Task> {
+    const task = await this.findOne(id);
+    if (task.user.id !== user.id) {
+      throw new ForbiddenException(
+        'You do not have permission to update this task',
+      );
+    }
+
+    Object.assign(task, updateData);
+    return this.tasksRepository.save(task);
+  }
+
+  async remove(id: number): Promise<void> {
+    const task = await this.findOne(id); // Check if the task exists
     if (!task) {
       throw new NotFoundException(`Task with ID ${id} not found`);
     }
 
-    // Update fields
-    Object.assign(task, updateData);
-
-    return this.tasksRepository.save(task);
+    await this.tasksRepository.remove(task);
   }
 
+  async markAsCompleted(id: number): Promise<Task> {
+    const task = await this.findOne(id); // Check if the task exists
+    if (!task) {
+      throw new NotFoundException(`Task with ID ${id} not found`);
+    }
 
-  async remove(id: number, user: User): Promise<void> {
-    await this.tasksRepository.delete({ id: id, user: user });
+    task.isCompleted = true;
+    return this.tasksRepository.save(task);
   }
 }

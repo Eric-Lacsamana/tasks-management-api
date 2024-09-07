@@ -15,6 +15,6 @@ export class Task {
   @Column({ default: false })
   isCompleted: boolean;
 
-  @ManyToOne(() => User, user => user.tasks) 
+  @ManyToOne(() => User, (user) => user.tasks)
   user: User;
 }
