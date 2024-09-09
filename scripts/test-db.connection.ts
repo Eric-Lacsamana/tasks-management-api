@@ -1,4 +1,7 @@
 import { createConnection } from 'typeorm';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 async function testConnection() {
   try {
@@ -9,12 +12,13 @@ async function testConnection() {
       username: process.env.DATABASE_USERNAME,
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
-      entities: [],
+      entities: [],  // Include your entities here if needed
       synchronize: true,
     });
     console.log('Database connection successful');
   } catch (error) {
-    console.error('Database connection failed', error);
+    console.error('Database connection failed:', error.message);
+    console.error('Stack trace:', error.stack);
   }
 }
 
