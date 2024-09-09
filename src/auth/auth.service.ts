@@ -110,10 +110,20 @@ export class AuthService {
 
   async refreshTokens(oldRefreshToken: string) {
     try {
+      if (!oldRefreshToken) {
+        throw new UnauthorizedException('Refresh token is missing');
+      }
+
       const decoded = this.jwtService.verify(oldRefreshToken, {
         secret: process.env.JWT_REFRESH_SECRET,
       });
       const userId = decoded.sub;
+
+      if (!userId) {
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+
+      this.logger.log(`Decoded user ID from token: ${userId}`);
 
       const user = await this.usersService.findOneById(userId);
       if (!user) {

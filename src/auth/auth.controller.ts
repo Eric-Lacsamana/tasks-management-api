@@ -6,10 +6,11 @@ import {
   HttpStatus,
   Logger,
   Post,
-  Req,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { AuthService } from 'src/auth/auth.service';
 import { RegisterDto } from './dto/register.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -22,31 +23,47 @@ export class AuthController {
   async register(@Body() body: RegisterDto) {
     this.logger.log('Registering user');
     try {
-      return await this.authService.register({
-        email: body.email,
-        username: body.username,
-        password: body.password,
-        name: body.name,
-      });
+      const user = await this.authService.register(body);
+      return { user };
     } catch (error) {
       this.logger.error('Registration failed', error.stack);
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Failed to register user',
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
   async login(@Body() body: { username: string; password: string }) {
-    const user = await this.authService.validateUser(
-      body.username,
-      body.password,
-    );
+    this.logger.log(`Logging in user: ${body.username}`);
 
-    if (!user) {
-      throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
+    try {
+      const user = await this.authService.validateUser(
+        body.username,
+        body.password,
+      );
+
+      if (!user) {
+        this.logger.warn('Invalid credentials for user: ' + body.username);
+        throw new UnauthorizedException('Invalid credentials');
+      }
+
+      const tokens = await this.authService.login(user);
+      return tokens;
+    } catch (error) {
+      this.logger.error('Login failed', error.stack);
+
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+
+      throw new HttpException(
+        'Failed to login',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
-
-    return this.authService.login(user);
   }
 
   @HttpCode(HttpStatus.OK)
@@ -58,7 +75,7 @@ export class AuthController {
     } catch (error) {
       this.logger.error('Logout failed', error.stack);
       throw new HttpException(
-        'Logout failed',
+        'Failed to logout',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

@@ -7,7 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { TasksModule } from './tasks/tasks.module';
 import { WeatherModule } from './weather/weather.module';
-
+console.log('test', process.env.DATABASE_NAME);
 @Module({
   imports: [
     ConfigModule.forRoot({
