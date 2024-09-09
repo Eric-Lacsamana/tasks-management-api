@@ -11,5 +11,5 @@ export class UpdateTaskDto {
 
   @IsBoolean()
   @IsOptional()
-  readonly isCompleted?: boolean;
+  readonly isComplete?: boolean;
 }

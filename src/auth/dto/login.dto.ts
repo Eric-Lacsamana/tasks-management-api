@@ -5,6 +5,6 @@ export class LoginDto {
   email: string;
 
   @IsString()
-  @Length(6, 20)  // Example length validation
+  @Length(6, 20)
   password: string;
 }

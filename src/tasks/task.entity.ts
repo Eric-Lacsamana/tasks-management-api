@@ -13,7 +13,7 @@ export class Task {
   description: string;
 
   @Column({ default: false })
-  isCompleted: boolean;
+  isComplete: boolean;
 
   @ManyToOne(() => User, (user) => user.tasks)
   user: User;

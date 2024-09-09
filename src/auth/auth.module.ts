@@ -6,6 +6,9 @@ import { AuthController } from './auth.controller';
 import { JwtStrategy } from './jwt.strategy';
 import { UsersModule } from '../users/users.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from 'src/users/user.entity';
+import { RefreshToken } from './refresh-token.entity';
 
 @Module({
   imports: [
@@ -28,6 +31,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         };
       },
     }),
+    TypeOrmModule.forFeature([User, RefreshToken]),
   ],
   providers: [AuthService, JwtStrategy],
   controllers: [AuthController],

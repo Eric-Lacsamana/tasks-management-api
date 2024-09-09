@@ -1,5 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany, } from 'typeorm';
 import { Task } from '../tasks/task.entity';
+import { RefreshToken } from 'src/auth/refresh-token.entity';
 
 @Entity()
 export class User {
@@ -18,8 +19,11 @@ export class User {
   @Column()
   name: string;
 
-  @OneToMany(() => Task, (task) => task.user) // One user can have many tasks
+  @OneToMany(() => Task, (task) => task.user)
   tasks: Task[];
+
+  @OneToMany(() => RefreshToken, (refreshToken) => refreshToken.user)
+  refreshTokens: RefreshToken[];
 
   @Column({ unique: true, nullable: true })
   sub?: number;

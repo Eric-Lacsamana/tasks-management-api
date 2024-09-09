@@ -8,7 +8,6 @@ import {
   Req,
   Put,
   Delete,
-  Patch,
 } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { TasksService } from './tasks.service';
@@ -38,12 +37,19 @@ export class TasksController {
   @UseGuards(AuthGuard)
   async findAll(@Req() req) {
     const user = req.user;
-    return this.tasksService.findAll(user.id);
+    return this.tasksService.findAll(user.sub);
   }
 
   @Get(':id')
   async findOne(@Param('id') id: number) {
     return this.tasksService.findOne(id);
+  }
+
+  @Put(':id/complete')
+  @UseGuards(AuthGuard)
+  async markAsComplete(@Param('id') id: number, @Req() req) {
+    const user = req.user;
+    return this.tasksService.markAsComplete(id, user);
   }
 
   @Put(':id')
@@ -54,14 +60,7 @@ export class TasksController {
     @Req() req,
   ) {
     const user = req.user;
-    console.log('testingan', req.user);
     return this.tasksService.update(id, updateTaskDto, user);
-  }
-
-  @Patch(':id/complete')
-  @UseGuards(AuthGuard)
-  async markAsCompleted(@Param('id') id: number) {
-    return this.tasksService.markAsCompleted(id);
   }
 
   @Delete(':id')

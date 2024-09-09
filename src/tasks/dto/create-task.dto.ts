@@ -18,7 +18,7 @@ export class CreateTaskDto {
 
   @IsOptional()
   @IsBoolean()
-  readonly isCompleted?: boolean;
+  readonly isComplete?: boolean;
 
   @ValidateNested()
   @Type(() => UserDto)

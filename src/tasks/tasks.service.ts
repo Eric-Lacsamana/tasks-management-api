@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -46,12 +47,19 @@ export class TasksService {
   }
 
   async findAll(userId?: number): Promise<Task[]> {
-    if (userId) {
-      return this.tasksRepository.find({
-        where: { user: { id: userId } },
-      });
+    console.log('TESS', userId);
+    if (!userId) {
+      throw new BadRequestException('User ID is required to get the tasks');
     }
-    return this.tasksRepository.find();
+
+    return this.tasksRepository.find({
+      where: {
+        user: {
+          id: userId,
+        },
+      },
+      relations: ['user'], // Ensure that the user relation is loaded
+    });
   }
 
   async findOne(id: number): Promise<Task> {
@@ -91,13 +99,19 @@ export class TasksService {
     await this.tasksRepository.remove(task);
   }
 
-  async markAsCompleted(id: number): Promise<Task> {
-    const task = await this.findOne(id); // Check if the task exists
+  async markAsComplete(id: number, user): Promise<Task> {
+    const task = await this.findOne(id);
+
+    if (task.user.id !== user.sub) {
+      throw new ForbiddenException(
+        'You do not have permission to update this task',
+      );
+    }
     if (!task) {
       throw new NotFoundException(`Task with ID ${id} not found`);
     }
 
-    task.isCompleted = true;
+    task.isComplete = true;
     return this.tasksRepository.save(task);
   }
 }

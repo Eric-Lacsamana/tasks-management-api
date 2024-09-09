@@ -11,7 +11,7 @@ import { TasksService } from './tasks.service';
 //   id: 1,
 //   title: 'Test Task',
 //   description: 'Test Description',
-//   isCompleted: false,
+//   isComplete: false,
 // };
 
 // Create a mock service
