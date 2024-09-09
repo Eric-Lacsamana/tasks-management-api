@@ -16,7 +16,6 @@ import { parseDurationInMs } from 'src/utils/durationInMsParser';
 export class RefreshTokenService {
   private readonly logger = new Logger(RefreshTokenService.name);
 
-  // Get expiration durations from environment variables and parse them
   private readonly refreshTokenExpiresInMs = parseDurationInMs(
     parseInt(process.env.REFRESH_TOKEN_EXPIRES_IN_DAYS || '7', 10),
   );
@@ -79,10 +78,9 @@ export class RefreshTokenService {
       return this.jwtService.sign(
         {
           sub: user.id,
-          // You might want to include additional claims or payload data here
         },
         {
-          expiresIn: process.env.JWT_EXPIRES_IN || '1h', // Ensure this is a valid string or number
+          expiresIn: process.env.JWT_EXPIRES_IN || '1h',
         },
       );
     } catch (error) {

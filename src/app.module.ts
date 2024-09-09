@@ -12,7 +12,7 @@ import { TasksModule } from './tasks/tasks.module';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
-    }), // Load environment variables
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DATABASE_HOST,
@@ -21,7 +21,7 @@ import { TasksModule } from './tasks/tasks.module';
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
       autoLoadEntities: true,
-      synchronize: true, // Set to false in production
+      synchronize: true,
     }),
     AuthModule,
     UsersModule,

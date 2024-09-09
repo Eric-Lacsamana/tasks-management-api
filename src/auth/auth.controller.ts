@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Logger,
   Post,
+  Req,
 } from '@nestjs/common';
 import { AuthService } from 'src/auth/auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -46,6 +47,21 @@ export class AuthController {
     }
 
     return this.authService.login(user);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('logout')
+  async logout(@Body() body: { refreshToken: string }) {
+    try {
+      await this.authService.logout(body.refreshToken);
+      return { message: 'Logged out successfully' };
+    } catch (error) {
+      this.logger.error('Logout failed', error.stack);
+      throw new HttpException(
+        'Logout failed',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   @HttpCode(HttpStatus.OK)

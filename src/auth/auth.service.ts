@@ -18,7 +18,6 @@ import { parseDuration } from 'src/utils/timeParser';
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
 
-  // Convert durations from environment variables
   private readonly accessTokenExpiresInMs = parseDuration(
     process.env.JWT_EXPIRES_IN || '15m',
   );
@@ -68,7 +67,7 @@ export class AuthService {
     try {
       const payload = { username: user.username, sub: user.id };
       const accessToken = this.jwtService.sign(payload, {
-        expiresIn: this.accessTokenExpiresInMs / 1000, // Convert ms to seconds
+        expiresIn: this.accessTokenExpiresInMs / 1000,
       });
       const refreshToken = await this.generateRefreshToken(user);
       return {
@@ -90,7 +89,7 @@ export class AuthService {
         { sub: user.id },
         {
           secret: process.env.JWT_REFRESH_SECRET,
-          expiresIn: this.refreshTokenExpiresInMs / 1000, // Convert ms to seconds
+          expiresIn: this.refreshTokenExpiresInMs / 1000,
         },
       );
 

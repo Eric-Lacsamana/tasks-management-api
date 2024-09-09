@@ -22,7 +22,7 @@ export class CreateTaskDto {
 
   @ValidateNested()
   @Type(() => UserDto)
-  readonly user: UserDto; // Nested user data
+  readonly user: UserDto;
 }
 
 export class UserDto {

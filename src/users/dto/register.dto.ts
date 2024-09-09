@@ -9,11 +9,11 @@ export class RegisterDto {
   email: string;
 
   @IsString()
-  @Length(6, 20) // Example length validation
+  @Length(6, 20)
   password: string;
 
   @IsOptional()
   @IsString()
-  @Length(1, 50) // Optional field with length validation
+  @Length(1, 50)
   name?: string;
 }

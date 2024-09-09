@@ -9,7 +9,7 @@ async function testConnection() {
       username: process.env.DATABASE_USERNAME,
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
-      entities: [], // Add entities if needed
+      entities: [],
       synchronize: true,
     });
     console.log('Database connection successful');
