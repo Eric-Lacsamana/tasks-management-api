@@ -1,7 +1,6 @@
 import { Client } from 'pg';
 import * as dotenv from 'dotenv';
 
-// Load environment variables from .env file
 dotenv.config();
 
 async function createDatabase() {
